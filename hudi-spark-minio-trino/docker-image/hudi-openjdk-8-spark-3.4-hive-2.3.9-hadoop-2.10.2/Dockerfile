@@ -32,20 +32,20 @@ RUN set -ex; \
     apt-get install -y python3 python3-pip git vim kafkacat jq maven; \
     rm -rf /var/lib/apt/lists/*
 
+COPY ${SPARK_ARTIFACT}.tgz ./
 RUN set -xeu; \
-    wget -nv "https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/${SPARK_ARTIFACT}.tgz"; \
     tar -xf ${SPARK_ARTIFACT}.tgz; \
     rm ${SPARK_ARTIFACT}.tgz; \
     ln -sn /${SPARK_ARTIFACT} ${SPARK_HOME}
 
+COPY apache-hive-2.3.9-bin.tar.gz ./
 RUN set -xeu; \
-    wget -nv "https://archive.apache.org/dist/hive/hive-2.3.9/apache-hive-2.3.9-bin.tar.gz"; \
     tar -xf apache-hive-2.3.9-bin.tar.gz; \
     rm apache-hive-2.3.9-bin.tar.gz; \
     ln -sn /apache-hive-2.3.9-bin /hive
 
+COPY hadoop-2.10.2.tar.gz ./
 RUN set -xeu; \
-    wget -nv "https://dlcdn.apache.org/hadoop/common/hadoop-2.10.2/hadoop-2.10.2.tar.gz"; \
     tar -xf hadoop-2.10.2.tar.gz; \
     rm hadoop-2.10.2.tar.gz; \ 
     ln -sn /hadoop-2.10.2 /hadoop
@@ -61,7 +61,13 @@ RUN wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/2.10.2/hado
 
 RUN wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/2.10.2/hadoop-aws-2.10.2.jar -P /opt/hudicli && wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.11.271/aws-java-sdk-bundle-1.11.271.jar -P /opt/hudicli && wget https://repo1.maven.org/maven2/org/apache/hudi/hudi-cli-bundle_2.12/0.15.0/hudi-cli-bundle_2.12-0.15.0.jar -P /opt/hudicli && wget https://repo1.maven.org/maven2/org/apache/hudi/hudi-spark3.4-bundle_2.12/0.15.0/hudi-spark3.4-bundle_2.12-0.15.0.jar -P /opt/hudicli
 
-RUN cd /opt && git clone https://github.com/apache/hudi.git && cd hudi && git checkout release-0.15.0 &&mvn clean package -Pintegration-tests -DskipTests
+COPY hudi.tar.gz ./
+RUN set -xeu; \
+    tar -xf hudi.tar.gz -C /opt; \
+    rm hudi.tar.gz
+
+COPY cache /root/.ivy2/cache
+COPY jars /root/.ivy2/jars
 
 EXPOSE 10213
 

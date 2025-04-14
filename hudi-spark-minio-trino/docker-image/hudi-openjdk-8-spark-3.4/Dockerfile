@@ -14,7 +14,6 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License. 
-
 ARG ARCH
 FROM eclipse-temurin:8-jdk-focal
 
@@ -46,7 +45,13 @@ RUN wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/2.10.2/hado
 
 RUN curl https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/mc && chmod +x /usr/local/bin/mc
 
-RUN cd /opt && git clone https://github.com/apache/hudi.git
+COPY hudi.tar.gz ./
+RUN set -xeu; \
+    tar -xf hudi.tar.gz -C /opt; \
+    rm hudi.tar.gz
+
+COPY cache /root/.ivy2/cache
+COPY jars /root/.ivy2/jars
 
 EXPOSE 10213
 
